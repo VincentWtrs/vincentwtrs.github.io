@@ -164,6 +164,10 @@ highlighter: rouge
 permalink: /:year-:month-:day-:title/
 paginate: 5
 
+
+# Pagination path (NEW / VW)
+paginate_path: "/blog/page:num/"
+
 kramdown:
   input: GFM
 
