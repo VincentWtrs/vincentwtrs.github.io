@@ -5,7 +5,7 @@ subtitle: Introduction and implementation using scikit-learn
 tags: [machine learning]
 comments: false
 author: Vincent Wauters
-published: false
+published: true
 ---
 
 
