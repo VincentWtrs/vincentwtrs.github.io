@@ -1,5 +1,14 @@
-# Intro
+---
+layout: post
+title: Conformal Quantile Regression
+subtitle: Introduction and implementation using scikit-learn
+tags: [machine learning]
+comments: false
+author: Vincent Wauters
+---
 
+
+# Intro
 Suppose you have built a fantastic machine learning model for predicting the selling price of a given house. Between the following two statements, what will make the biggest impression?
 
 _'I predict that this house has a value of 450.000 euro'_
