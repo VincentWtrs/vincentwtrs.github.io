@@ -5,6 +5,7 @@ subtitle: Introduction and implementation using scikit-learn
 tags: [machine learning]
 comments: false
 author: Vincent Wauters
+published: false
 ---
 
 
@@ -42,7 +43,8 @@ For the case of regression with continuous outcomes, __(conditional) quantile re
 
 How can one estimate a conditional quantile instead of the (usual) conditional mean, you ask? Quantile regression achieves this by using a specific family of loss functions. Just like estimating the conditional mean is done by minimizing the mean squared error MSE loss, estimating conditional quantiles is achieved by minimizing the family of __pinball losses__ or _hockey stick losses_. Take the loss of the target and the estimated quantile using the features $\mathbf{x}$ as $q(\mathbf{x})$, for a conditional quantile $q_{\tau}$ with $\tau \in [0, 1]$
 
-$$\rho_{\tau}(y, \hat{q}(\mathbf{x})) :=
+$$
+\rho_{\tau}(y, \hat{q}(\mathbf{x})) :=
 \begin{cases}
     \tau(y-\hat{q}(\mathbf{x})), & \text{if } y-\hat{q}(\mathbf{x}) > 0\\
     (1-\tau)(y - \hat{q}(\mathbf{x})), & \text{otherwise.}
