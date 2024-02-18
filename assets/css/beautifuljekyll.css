@@ -841,12 +841,14 @@ code {
   color: #c7254e;
   background-color: #f9f2f4;
   border-radius: 0.25rem;
+  overflow-x: auto; /* Add this line to enable horizontal scrolling */
 }
 
 pre code {
   padding: 0;
   background-color: transparent;
   border-radius: 0;
+  overflow-x: auto; /* Add this line to enable horizontal scrolling */
 }
 
 pre {
