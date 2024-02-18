@@ -856,6 +856,7 @@ pre {
   line-height: 1.5em;
   border-radius: 0.25rem;
   padding: 0.59375rem;
+  white-space: pre; /* Preserve whitespace and formatting */
   overflow-x: auto; /* Add this line to enable horizontal scrolling */
 }
 .highlight pre {
