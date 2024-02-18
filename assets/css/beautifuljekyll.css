@@ -841,14 +841,14 @@ code {
   color: #c7254e;
   background-color: #f9f2f4;
   border-radius: 0.25rem;
-  overflow-x: auto; /* Add this line to enable horizontal scrolling */
+  overflow-x: scroll; /* Add this line to enable horizontal scrolling */
 }
 
 pre code {
   padding: 0;
   background-color: transparent;
   border-radius: 0;
-  overflow-x: auto; /* Add this line to enable horizontal scrolling */
+  overflow-x: scroll; /* Add this line to enable horizontal scrolling */
 }
 
 pre {
@@ -857,7 +857,7 @@ pre {
   border-radius: 0.25rem;
   padding: 0.59375rem;
   white-space: pre; /* Preserve whitespace and formatting */
-  overflow-x: auto; /* Add this line to enable horizontal scrolling */
+  overflow-x: scroll; /* Add this line to enable horizontal scrolling */
 }
 .highlight pre {
   border: none;
