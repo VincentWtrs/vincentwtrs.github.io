@@ -1064,5 +1064,5 @@ Ineed, the calibration on the unseen dataset now has improved from 79% to 88%, w
 This gives an idea about the basics of conformalized quantile regression. Extensions surely exist and I have some more advanced implementations that I might share in a next post. Stay tuned!
 
 # Sources
-* Romano, Patterson & Candes (2019): Conformalized Quantile Regression [https://arxiv.org/abs/1905.03222](https://arxiv.org/abs/1905.0322)
+* Romano, Patterson & Candes (2019): Conformalized Quantile Regression [https://arxiv.org/abs/1905.032222](https://arxiv.org/abs/1905.03222)
 * Valemans _Awesome Conformal Prediction_ GitHub page [https://github.com/valeman/awesome-conformal-prediction](https://github.com/valeman/awesome-conformal-prediction)
