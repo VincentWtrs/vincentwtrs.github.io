@@ -3,6 +3,7 @@ layout: post
 title: Prediction Intervals using Conformalized Quantile Regression
 subtitle: Introduction and implementation
 share-img: /assets/img/cqr1/header_cqr1.PNG
+cover-img: /assets/img/cqr1/header_cqr1.PNG
 tags: [machine learning]
 comments: false
 author: Vincent Wauters
