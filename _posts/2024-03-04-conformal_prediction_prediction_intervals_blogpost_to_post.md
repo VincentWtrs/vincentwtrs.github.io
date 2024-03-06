@@ -17,13 +17,14 @@ _or_
 
 _'I predict that this house has a value between 435.000 euro and 465.000 euro with 90% certainty_'
 
-While the boldness of the first statement might impress some people - certainly in the area of real estate - the later statement does convey information about the magnitude of uncertainty, which is incredibly useful and is called uncertainty quantification (UQ). For regression cases this comes down to constructing _prediction intervals_ (PI) and for classification to _prediction sets_.
+The boldness of the first statement might impress some people, certainly in the of real estate world. However, the latter statement does convey information about the magnitude of uncertainty, which is incredibly rich in information, and is called uncertainty quantification (UQ). For regression cases this comes down to constructing _prediction intervals_ (PI) and for classification to _prediction sets_. 
 
 ![header_cqr1.PNG](/assets/img/cqr1/header_cqr1.PNG)
 
-Up until recently, the most common ways of uncertainty quantification were all rather lackluster: either they were based on unrealistic assumptions (such as normality) or were only applicable on very specific models. Luckily, there is a new kid on the block called _conformal prediction_ or _conformal inference_, which is a very powerful and model-agnostic method to construct reliable prediction intervals or predictions sets without any distributional assumptions. 
 
-A specific type of conformal prediction called __conformalized quantile regression__ leverages the power of conditional quantile regression and provides a rather elegant way of constructing valid prediction intervals for regression, this will be the focus of this post.
+Up until recently, the most common ways of uncertainty quantification were all rather lackluster: either they were based on unrealistic assumptions (such as normality) or were only applicable on very specific models. Luckily, there is a _newish_ kid on the block called __conformal prediction__ or conformal inference, which is a very powerful and model-agnostic method to construct reliable prediction intervals or predictions sets without any distributional assumptions. 
+
+A specific type of conformal prediction called __conformalized quantile regression__ leverages the power of conditional quantile regression and provides a rather elegant way of constructing valid prediction intervals for regression, this will be the focus of this post, with some applications shown on the well-known _Ames housing data_, hence the initial two example statements.
 
 # Conformal Quantile Regression: Concepts
 
@@ -123,11 +124,11 @@ Below a visualization of the distribution of $s_i$ taken from the _Ames_ housing
 
 ## Marginal and Conditional Coverage
 
-One important aspect of coverage that we haven't, well..., _covered_ is that it is taken in its totality, or "pooled". Indeed, the conformal correction applied does consider the conformity scores over the whole sample (and hence range of the features $\mathbf{X}$) at once, and the correction factor $s_{adj}$ is applied on both the lower and upper bounds everywhere. It does not add any _additional_ "variablity" or adaptiveness in the width that wasn't created by the original quantile regression bounds. In other words: the conformalization steps done here only give (approximate) __marginal coverage guarantees__ and __not__ and __conditional coverage guarantees__. The latter is obviously a lot harder and it has been shown that no method can be constructed to attain perfect conditional coverage. 
+One important aspect of coverage that we haven't, well..., _covered_, properly is that -until now- we have looked at coverage as a global property and not a local one. Indeed, the conformal correction applied does consider the conformity scores over the all observations (and hence range of the features $\mathbf{X}$) at once, and the correction factor $s_{adj}$ is applied on both the lower and upper bounds everywhere. It does not add any _additional_ "variablity" or adaptiveness in the width that wasn't created by the original quantile regression bounds. In other words: the conformalization steps done here only give (approximate) __marginal coverage guarantees__ and __not__ and __conditional (local) coverage guarantees__. The latter is obviously a lot harder and it has been shown that no method can be constructed to attain perfect conditional coverage. 
 
 ## Data Splitting Strategies: Split-Conformal Learning and Cross-Conformal Learning
 
-Originally, the conformal learning literature was preoccupipied with getting prediction intervals for a single unseen observation, and involved re-computing the intervals for each new observation. This made the original use of this framework (_full conformal prediction_) underused, understandably. Very similarly (and not by coincidence) to how data is often split to measure generalization performance (e.g. for hyperparameter tuning), one can also choose to split data to conformalize or calibrate a models' predictions, this leads to two new ways of working with conformal prediction:
+Very briefly, let's talk about some of the history of conformal learning. The original ideas were preoccupipied with getting prediction intervals for a single unseen observation, and involved re-computing the intervals for each new observation. This made the original use of this framework (_full conformal prediction_) underused, understandably. In come data splitting (or resampling) strategies: very similarly to how data is often split to measure generalization performance (e.g. for hyperparameter tuning), one can also choose to split data to conformalize or calibrate a models' predictions, this leads to two new ways of working with conformal prediction:
 
 1. Split-Conformal prediction
 2. Cross-Conformal prediction
@@ -136,22 +137,15 @@ Split conformal prediction divides all available data into two disjoint sets:
 * $D_1$: data used for training, the proper training set to train a machine learning model on
 * $D_2$: data used for conformalizing or calibrating the trained machine learning model to achieve proper coverage
 
-While cross-conformal learning will divide the dataset into $K$ disjoint groups, and similarly to cross-validation, will have one of the groups play the role of the calibration set, while the others together form the proper training set and repeat this $K$ times until each datapoint has been part of the calibration set exactly once and $K-1$ times member of the proper training set. 
+Cross-conformal learning will divide the dataset into $K$ disjoint groups, and similarly to cross-validation, will have one of the groups play the role of the calibration set, while the others together form the proper training set and repeat this $K$ times until each datapoint has been part of the calibration set exactly once and $K-1$ times member of the proper training set. 
 
 The reason why we apply data splitting in the first place is very similar to why measuring loss on the training set might be misleading: we don't want optimistically bias the conformity scores $s_i$ and hence the resulting adjustment factor. Such a bias would lead to worse results on unseen data, i.e. having incorrect coverages on unseen data.
-
 
 # Conformal Quantile Regression in Python
 
 Let's now see how we can use conformal quantile regression in Python. First we will load libraries and the _Ames Housing_ data and perform some basic preprocessing on it.
 
 ## Loading Libraries
-
-
-```python
-import warnings
-warnings.filterwarnings("ignore") # TODO VW: REMOVE THIS BLOCK -- SUCCESFULLY REMOVES RUNTIMEWARNINGS
-```
 
 We will load some the functions and classes necessary and set some additional parameters.
 
@@ -253,9 +247,10 @@ To further simplify matters, we will retain a more limited set of features (19) 
 
 ```python
 # Selecting some (mainly numeric) columns only
-feat_cols = ['MSSubClass', 'LotArea', 'OverallQual', 'OverallCond', 'YearBuilt', 
-             'YearRemodAdd', 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF',
-             '1stFlrSF', '2ndFlrSF', 'LowQualFinSF', 'GrLivArea', 'BedroomAbvGr', 'KitchenAbvGr',
+feat_cols = ['MSSubClass', 'LotArea', 'OverallQual', 'OverallCond', 
+             'YearBuilt', 'YearRemodAdd', 'BsmtFinSF1', 'BsmtFinSF2', 
+             'BsmtUnfSF', 'TotalBsmtSF', '1stFlrSF', '2ndFlrSF', 
+             'LowQualFinSF', 'GrLivArea', 'BedroomAbvGr', 'KitchenAbvGr',
              'TotRmsAbvGrd', 'GarageArea', 'WoodDeckSF']
 X = X[feat_cols].copy()
 ```
@@ -329,7 +324,7 @@ tuning_objects = dict.fromkeys(taus, None)  # Same, but to save tuned model in
 for tau in taus:
     print(f'Tuning hyperparameters for conditional quantile regression model: q_{tau}')
     models[tau] = HistGradientBoostingRegressor(loss='quantile', quantile=tau, random_state=seed) 
-    # From sklearn v1.1 onwards you can use faster HistGradientBoostingRegressor instead of GradientBoostingRegressor
+    # Alternatively use GradientBoostingRegressor
     
     # Repeated K-fold cross-validation data resampling strategy
     cv = RepeatedKFold(n_splits=n_folds, n_repeats=n_repeats, random_state=seed)
@@ -419,7 +414,7 @@ print(f"The conformal correction relative to the average house price: {conformal
     The conformal correction relative to the average house price: 3.67%
     
 
-The calculated correction factor to adjust both lower and upper (raw) prediction bounds is (+) 6472 (USD). This is approximately 3.67% of the average house, hence nothing dramatic. This seems very reasonable compared to the magnitude of house prices. 
+The calculated correction factor to adjust both lower and upper (raw) prediction bounds is (+) 6472 (USD). This is approximately 3.67% of the average house, hence nothing dramatic. This seems very reasonable compared to the magnitude of house prices. Do note that this is added to the existing width of the prediction intervals created by the two conditional quantile regression models; we will see that the sum-total of both actually is, rather large!
 
 We can now progress by just applying the adjustment, since it's positive it means that we will enlarge the prediction interval, hence moving the lower bound down and the upper bound up. 
 
@@ -654,6 +649,11 @@ calculate_conformal_diagnostics(preds_cal=preds_cal,
     Test set: conformalized coverage:  0.89
     
 
+Discussing some of the numbers printed above, focusing on the unseen data, which is the most honest to talk about:
+* The average width of a non-conformalized interval was around USD 58K, the conformalized variant being 2 times the conformal correction factor wider (USD 79.1K)
+* Relative to the selling price, the average width of the interval is around 34% of the selling price for the raw interval and around 41% for the conformalized interval. 
+* There is a slight (marginal) undercoverage on the test data, we attain 89%, while having requested 90%, still this is close to our target!
+
 ## Visualization of Prediction Intervals
 
 Let's try to get an intuitive visualization of what is happening by taking a selection of observations (e.g. 10) and plotting them with their associated raw prediction intervals straight from the conditional quantile regression and the conformalized equivalents.
@@ -709,6 +709,8 @@ plt.show()
 ![png](/assets/img/cqr1/output_48_0.png)
     
 
+
+This gives some additional insight for a random selection of 10 houses, note that for some houses the resulting prediction intervals are much wider than others (e.g. house 5 vs. house 2). Of course it's important to understand that some phenomena have higher intrinsic uncertainty than others, and the real estate market, being a market with a high degree of information asymmetry certainly falls victim to this.
 
 # Class Implementation
 
@@ -811,6 +813,8 @@ class ConformalizedQuantileRegressorCV:
         # and knowing that defaults can change over sklearn versions...
         self.cv_results_ = [t.cv_results_ for t in self.estimators_]
         self.best_score_ = [t.best_score_ for t in self.estimators_]
+        
+        return self
                   
     def predict(self, X):
         """
@@ -1025,7 +1029,7 @@ Let's check and confirm if the attained coverage matches the requested coverage,
 
 
 ```python
-# Using the diagnostics function -- I THINK I NEED TO CHANGE THE calculate_conformal_diagnostics to not recalculate the adj factor
+# Using the diagnostics function
 requested_coverage =  upper - lower
 print(f"****Requested coverage: {requested_coverage:.2f}****")
 print("*" * 125)
@@ -1067,5 +1071,5 @@ Ineed, the calibration on the unseen dataset now has improved from 79% to 88%, w
 This gives an idea about the basics of conformalized quantile regression. Extensions surely exist and I have some more advanced implementations that I might share in a next post. Stay tuned!
 
 # Sources
-* Romano, Patterson & Candes (2019): Conformalized Quantile Regression [https://arxiv.org/abs/1905.032222](https://arxiv.org/abs/1905.03222)
-* Valemans _Awesome Conformal Prediction_ GitHub page [https://github.com/valeman/awesome-conformal-prediction](https://github.com/valeman/awesome-conformal-prediction)
+* Romano, Patterson & Candes (2019): Conformalized Quantile Regression [(https://arxiv.org/abs/1905.03222)](https://arxiv.org/abs/1905.03222)
+* Valemans _Awesome Conformal Prediction_ GitHub page [(https://arxiv.org/abs/1905.03222)](https://github.com/valeman/awesome-conformal-prediction)
