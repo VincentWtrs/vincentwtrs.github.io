@@ -3,7 +3,6 @@ layout: post
 title: Prediction Intervals using Conformalized Quantile Regression
 subtitle: Introduction and implementation
 share-img: /assets/img/cqr1/header_cqr1.PNG
-cover-img: /assets/img/cqr1/header_cqr1.PNG
 tags: [machine learning]
 comments: false
 author: Vincent Wauters
@@ -19,6 +18,8 @@ _or_
 _'I predict that this house has a value between 435.000 euro and 465.000 euro with 90% certainty_'
 
 While the boldness of the first statement might impress some people - certainly in the area of real estate - the later statement does convey information about the magnitude of uncertainty, which is incredibly useful and is called uncertainty quantification (UQ). For regression cases this comes down to constructing _prediction intervals_ (PI) and for classification to _prediction sets_.
+
+![header_cqr1.PNG](/assets/img/cqr1/header_cqr1.PNG)
 
 Up until recently, the most common ways of uncertainty quantification were all rather lackluster: either they were based on unrealistic assumptions (such as normality) or were only applicable on very specific models. Luckily, there is a new kid on the block called _conformal prediction_ or _conformal inference_, which is a very powerful and model-agnostic method to construct reliable prediction intervals or predictions sets without any distributional assumptions. 
 
