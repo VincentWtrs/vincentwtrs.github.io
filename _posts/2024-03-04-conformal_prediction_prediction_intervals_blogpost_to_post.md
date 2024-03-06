@@ -1064,7 +1064,7 @@ calculate_conformal_diagnostics(preds_cal=preds_cal2,
     Test set: conformalized coverage:  0.88
     
 
-Ineed, the calibration on the unseen dataset now has improved from 79% to 88%, which is a lot closer to the requested 90% coverage!
+Indeed, the calibration on the unseen dataset now has improved from 79% to 88%, which is a lot closer to the requested 90% coverage!
 
 # Next up
 
