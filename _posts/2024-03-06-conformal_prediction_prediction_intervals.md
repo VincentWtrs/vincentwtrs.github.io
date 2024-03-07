@@ -30,9 +30,9 @@ A specific type of conformal prediction called __conformalized quantile regressi
 
 ## Conditional Quantile Regression and the Pinball Loss
 
-Quantile regression is well known, but sadly not particularly popular nowadays. However it is the cornerstone of how prediction intervals will be constructed in the following sections. Contrary to most regression models that estimate the conditional mean, quantile regression aims to estimate a certain conditional quantile of the target variable: $q_{\tau}$ with $\tau \in [0, 1]$. The most common example would be to estimate the conditional $\tau=0.5$ quantile $q_{0.5}$, which is the conditional median. And yes indeed, one could estimate two conditional quantile models, one for lower bound and one for an upper bound to try to achieve valid prediction intervals. More on this a little later!
+Quantile regression is well known, but sadly not particularly popular nowadays. However it is the cornerstone of how prediction intervals will be constructed in the following sections. Contrary to most regression models that estimate the conditional mean, quantile regression aims to estimate a certain conditional quantile of the target variable: $q_{\tau}$ with $\tau \in [0, 1]$. The most common example would be to estimate the conditional $\tau=0.5$ quantile $q_{0.5}$, which is the conditional median. And yes indeed, one could estimate two conditional quantile models, one for a lower bound and one for an upper bound to try to achieve valid prediction intervals. More on this a little later!
 
-Let's stick to the basics for a little longer... how can one estimate a conditional quantile instead of the (usual) conditional mean, you ask? Quantile regression achieves this by using a specific family of loss functions. Just like estimating the conditional mean is done by minimizing the mean squared error (MSE) loss, estimating conditional quantiles is achieved by minimizing the family of __pinball losses__ or tilted $\ell_1$ loss. Take the loss of the target and the estimated quantile using the features $\mathbf{x}$ as $q(\mathbf{x})$, for a conditional quantile $q_{\tau}$ with $\tau \in [0, 1]$ with the estimated version denoted as $\hat{q}(\mathbf{x})$
+Let's stick to the basics for a little longer... how to estimate a specific conditional quantile instead of the (usual) conditional mean, you ask? Quantile regression achieves this by using a specific family of loss functions. Just like estimating the conditional mean is done by minimizing the mean squared error (MSE) loss, estimating conditional quantiles is achieved by minimizing an appropriate member of the family of __pinball losses__ or tilted $\ell_1$ loss. Take the loss of the target and the estimated quantile using the features $\mathbf{x}$ as $q(\mathbf{x})$, for a conditional quantile $q_{\tau}$ with $\tau \in [0, 1]$ with the estimated version denoted as $\hat{q}(\mathbf{x})$
 
 $$L_{\tau}(y, \hat{q}(\mathbf{x})) =
 \begin{cases}
@@ -51,7 +51,6 @@ $$L_{\tau}(\hat{\varepsilon}) =
 $$
 
 When having a sample of  $n$ observations, one proceeds as follows, by taking the average:
-And for all samples, taking the average as is usual:
 
 $$\min \frac{1}{n} \sum_{i=1}^{n} L_{\tau}(y, \hat{q}(\mathbf{x}))$$
 
