@@ -54,7 +54,7 @@ When having a sample of  $n$ observations, one proceeds as follows, by taking th
 
 $$\min \frac{1}{n} \sum_{i=1}^{n} L_{\tau}(y, \hat{q}(\mathbf{x}))$$
 
-How does one interpret pinball loss? In simple terms, this loss allows for incurring a different loss for either overprediction and underpredictions. It is not a symmetrical loss function, as can be seen by the differing angles (except for $\tau=0.5$). Also notice that if the prediction is equal to the target, the loss is 0, which is obviously a property that is desirable for a loss function.
+How does one interpret pinball loss? In simple terms, this loss allows for incurring a different loss for either overprediction and underpredictions. It is not a symmetrical loss function, as can be seen by the differing angles (except for $\tau=0.5$). For example, for quantile $\tau=0.9$, the incurred loss for underpredicting is larger than for overpredicting, this can be seen by the higher angle of the curve for negative values (of the error) then for positive values. The opposite holds for lower quantile values (i.e. $\tau < 0.5$). Also notice that if the prediction is equal to the target, the loss is 0, which is obviously a property that is desirable for a loss function.
 
 ![pinball_loss.png](/assets/img/cqr1/pinball_loss.png)
 
