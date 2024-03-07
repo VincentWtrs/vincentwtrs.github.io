@@ -17,7 +17,7 @@ _or_
 
 _'I predict that this house has a value between 435.000 euro and 465.000 euro with 90% certainty_'
 
-The boldness of the first statement might impress some people, certainly in the of real estate world. However, the latter statement does convey information about the magnitude of uncertainty, which is incredibly rich in information, and is called uncertainty quantification (UQ). For regression cases this comes down to constructing _prediction intervals_ (PI) and for classification to _prediction sets_. 
+The boldness of the first statement might impress some people, certainly in the domain of real estate. However, the latter statement does convey information about the magnitude of uncertainty, which is incredibly rich in information, and is called uncertainty quantification (UQ). For regression cases this comes down to constructing _prediction intervals_ (PI) and for classification to _prediction sets_. 
 
 ![header_cqr1.PNG](/assets/img/cqr1/header_cqr1.PNG)
 
