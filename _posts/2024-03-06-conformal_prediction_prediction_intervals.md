@@ -140,6 +140,11 @@ Cross-conformal learning will divide the dataset into $K$ disjoint groups, and s
 
 The reason why we apply data splitting in the first place is very similar to why measuring loss on the training set might be misleading: we don't want optimistically bias the conformity scores $s_i$ and hence the resulting adjustment factor. Such a bias would lead to worse results on unseen data, i.e. having incorrect coverages on unseen data.
 
+## Exchangeability condition
+At the start of this post, we stated that the very light distributional assumptions required, make conformal prediction an extremely valuable tool. However, there is one assumption that needs to hold: __exchangeability__. Exchangeability is a slightly weaker assumption than the more common independent and identifcally distributed (i.i.d.) assumption which is more well-known. Without going into much detail (it can get quite theoretical): any data with serial correction such as time series data generally violates the exchangeability condition. Cross-sectional data does adhere the condition more often but not always, e.g. in practice one often observes shifting distributions (covariate shift) which does invalidate the exchangeability condition. However, more recently, there are developments in making conformal prediction work (at least approximately) under various less-strict conditions. See e.g. Barber et al (2022) [(https://www.stat.berkeley.edu/~ryantibs/papers/nexcp.pdf)](https://www.stat.berkeley.edu/~ryantibs/papers/nexcp.pdf). 
+
+We will assume the exchangeability condition holds from this point on for simplicity sake.
+
 # Conformal Quantile Regression in Python
 
 Let's now see how we can use conformal quantile regression in Python. First we will load libraries and the _Ames Housing_ data and perform some basic preprocessing on it.
@@ -1071,4 +1076,5 @@ This gives an idea about the basics of conformalized quantile regression. Extens
 
 # Sources
 * Romano, Patterson & Candes (2019): Conformalized Quantile Regression [(https://arxiv.org/abs/1905.03222)](https://arxiv.org/abs/1905.03222)
+* Barber et al. (2022): Conformal prediction beyond exchangeability [(https://www.stat.berkeley.edu/~ryantibs/papers/nexcp.pdf)](https://www.stat.berkeley.edu/~ryantibs/papers/nexcp.pdf)
 * Valemans _Awesome Conformal Prediction_ GitHub page [(https://github.com/valeman/awesome-conformal-prediction)](https://github.com/valeman/awesome-conformal-prediction)
