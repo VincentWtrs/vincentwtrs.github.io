@@ -1071,4 +1071,4 @@ This gives an idea about the basics of conformalized quantile regression. Extens
 
 # Sources
 * Romano, Patterson & Candes (2019): Conformalized Quantile Regression [(https://arxiv.org/abs/1905.03222)](https://arxiv.org/abs/1905.03222)
-* Valemans _Awesome Conformal Prediction_ GitHub page [(https://arxiv.org/abs/1905.03222)](https://github.com/valeman/awesome-conformal-prediction)
+* Valemans _Awesome Conformal Prediction_ GitHub page [(https://github.com/valeman/awesome-conformal-prediction)](https://github.com/valeman/awesome-conformal-prediction)
