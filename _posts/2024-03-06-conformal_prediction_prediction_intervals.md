@@ -7,6 +7,7 @@ tags: [machine learning]
 comments: false
 author: Vincent Wauters
 published: true
+mathjax: true
 ---
 
 Suppose you have built a fantastic machine learning model for predicting the selling price of a given house. Between the following two statements, which one would you prefer?
