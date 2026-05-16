@@ -42,7 +42,7 @@ $$L_{\tau}(y, \hat{q}(\mathbf{x})) =
 \end{cases}
 $$
 
-Taking $\hat{\varepsilon} = y - \hat{q}(\mathbf{x})$, one can also state:
+Taking $\widehat{\varepsilon} = y - \hat{q}(\mathbf{x})$, one can also state:
 
 $$L_{\tau}(\hat{\varepsilon}) =
 \begin{cases}
