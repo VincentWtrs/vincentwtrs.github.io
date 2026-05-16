@@ -1,13 +1,17 @@
-<!-- trigger rebuild -->
 {% if page.mathjax %}
 <script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [['\\(','\\)'], ['$', '$']],
-      displayMath: [['\\[','\\]'], ['$$','$$']]
-    },
-    svg: { fontCache: 'global' }
-  };
+window.MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
 </script>
-<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<script defer id="MathJax-script"
+        src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js">
+</script>
 {% endif %}
