@@ -33,27 +33,27 @@ A specific type of conformal prediction called __conformalized quantile regressi
 
 Quantile regression is well known, but sadly not particularly popular nowadays. However it is the cornerstone of how prediction intervals will be constructed in the following sections. Contrary to most regression models that estimate the conditional mean, quantile regression aims to estimate a certain conditional quantile of the target variable: $q_{\tau}$ with $\tau \in [0, 1]$. The most common example would be to estimate the conditional $\tau=0.5$ quantile $q_{0.5}$, which is the conditional median. And yes indeed, one could estimate two conditional quantile models, one for a lower bound and one for an upper bound to try to achieve valid prediction intervals. More on this a little later!
 
-Let's stick to the basics for a little longer... how to estimate a specific conditional quantile instead of the (usual) conditional mean, you ask? Quantile regression achieves this by using a specific family of loss functions. Just like estimating the conditional mean is done by minimizing the mean squared error (MSE) loss, estimating conditional quantiles is achieved by minimizing an appropriate member of the family of __pinball losses__ or tilted $\ell_1$ loss. Take the loss of the target and the estimated quantile using the features $\mathbf{x}$ as $q(\mathbf{x})$, for a conditional quantile $q_{\tau}$ with $\tau \in [0, 1]$ with the estimated version denoted as $\hat{q}(\mathbf{x})$
+Let's stick to the basics for a little longer... how to estimate a specific conditional quantile instead of the (usual) conditional mean, you ask? Quantile regression achieves this by using a specific family of loss functions. Just like estimating the conditional mean is done by minimizing the mean squared error (MSE) loss, estimating conditional quantiles is achieved by minimizing an appropriate member of the family of __pinball losses__ or tilted $\ell_1$ loss. Take the loss of the target and the estimated quantile using the features $\mathbf{x}$ as $q(\mathbf{x})$, for a conditional quantile $q_{\tau}$ with $\tau \in [0, 1]$ with the estimated version denoted as $\widehat{q}(\mathbf{x})$
 
-$$L_{\tau}(y, \hat{q}(\mathbf{x})) =
+$$L_{\tau}(y, \widehat{q}(\mathbf{x})) =
 \begin{cases}
-    \tau(y-\hat{q}(\mathbf{x})), & \text{if } y-\hat{q}(\mathbf{x}) \geq 0\\
-    -(1-\tau)(y - \hat{q}(\mathbf{x})), & \text{if } y - \hat{q}(\mathbf{x}) < 0 \\
+    \tau(y-\widehat{q}(\mathbf{x})), & \text{if } y-\widehat{q}(\mathbf{x}) \geq 0\\
+    -(1-\tau)(y - \widehat{q}(\mathbf{x})), & \text{if } y - \widehat{q}(\mathbf{x}) < 0 \\
 \end{cases}
 $$
 
-Taking $\widehat{\varepsilon} = y - \hat{q}(\mathbf{x})$, one can also state:
+Taking $\widehat{\varepsilon} = y - \widehat{q}(\mathbf{x})$, one can also state:
 
-$$L_{\tau}(\hat{\varepsilon}) =
+$$L_{\tau}(\widehat{\varepsilon}) =
 \begin{cases}
-    \tau\hat{\varepsilon}, & \text{if } \hat{\varepsilon} \geq 0\\
-    -(1-\tau)\hat{\varepsilon}, & \text{if } \hat{\varepsilon} < 0 \\
+    \tau\widehat{\varepsilon}, & \text{if } \widehat{\varepsilon} \geq 0\\
+    -(1-\tau)\widehat{\varepsilon}, & \text{if } \widehat{\varepsilon} < 0 \\
 \end{cases}
 $$
 
 When having a sample of  $n$ observations, one proceeds as follows, by taking the average:
 
-$$\min \frac{1}{n} \sum_{i=1}^{n} L_{\tau}(y, \hat{q}(\mathbf{x}))$$
+$$\min \frac{1}{n} \sum_{i=1}^{n} L_{\tau}(y, \widehat{q}(\mathbf{x}))$$
 
 How does one interpret pinball loss? In simple terms, this loss allows for incurring a different loss for either overprediction and underpredictions. It is not a symmetrical loss function, as can be seen by the differing angles (except for $\tau=0.5$). For example, for quantile $\tau=0.9$, the incurred loss for underpredicting is larger than for overpredicting, this can be seen by the higher angle of the curve for negative values (of the error) then for positive values. The opposite holds for lower quantile values (i.e. $\tau < 0.5$). Also notice that if the prediction is equal to the target, the loss is 0, which is obviously a property that is desirable for a loss function.
 
@@ -89,11 +89,11 @@ However, Conformalized conditional Quantile Regression (CQR), will take the main
 
 One of the most pivotal concepts in conformal prediction is the __conformity score $s_i$__. This score serves to encode (measure) the disagreement between predictions and targets. Many options exist on what kind of functional form of conformity score to choose. It can be something as simple as the absolute residual. However, since we are dealing with two conditional quantile regression models here, we need to apply some additional trickery.
 
-Suppose you have chosen two $\tau$-values, a lower and upper value $(L, U)$ (e.g. $L=0.05$ and $U=0.95$) for your two predicted conditional quantiles $\hat{q}_L(\mathbf{x}), \hat{q}_U(\mathbf{x})$ to construct a prediction interval. 
+Suppose you have chosen two $\tau$-values, a lower and upper value $(L, U)$ (e.g. $L=0.05$ and $U=0.95$) for your two predicted conditional quantiles $\widehat{q}_L(\mathbf{x}), \widehat{q}_U(\mathbf{x})$ to construct a prediction interval. 
 
 One elegant option that works well for this case is the following conformity score which can be calculated for each observation $i=1, ..., n$
 
-$$s_i(y_i, \hat{q}(\mathbf{x}_i)) = \max\{\hat{q}_L(\mathbf{x}_i) - y ~;~ y - \hat{q}_U(\mathbf{x}_i)\}$$
+$$s_i(y_i, \widehat{q}(\mathbf{x}_i)) = \max\{\widehat{q}_L(\mathbf{x}_i) - y ~;~ y - \widehat{q}_U(\mathbf{x}_i)\}$$
 
 In essence: for observations where $y_i$ falls within the prediction interval range, both values are negative and the distance to the closest boundary is taken as conformity score, this will be the 'least negative' score and would make the resulting prediction bounds to move inwards (closer to each other). For observations outside the prediction interval, the value taken is the largest positive value and leads to the bounds moving outwards. In case the observation falls exactly on either of the bounds, the conformity score is exactly 0. The following figure provides examples for 6 different potantial situations.
 
@@ -112,7 +112,7 @@ Note that for very large $n$, this adjusted value asymptotically will converge t
 Then, one simple thing needs to be done: adjust the resulting prediction interval using this calculated $s_{adj}$ to get the conformalized prediction interval $C(\mathbf{x}_i)$:
 
 
-$$C(\mathbf{x}_i) = \left[ \hat{q}_{L}(\mathbf{x}_i) - s_{adj} ~ ; ~ \hat{q}_{U}(\mathbf{x}_i) + s_{adj} \right]$$
+$$C(\mathbf{x}_i) = \left[ \widehat{q}_{L}(\mathbf{x}_i) - s_{adj} ~ ; ~ \widehat{q}_{U}(\mathbf{x}_i) + s_{adj} \right]$$
 
 Let's elaborate a bit more why this last step will make the resulting prediction interval attain the requested $(1-\alpha)$ coverage level: assume that we are dealing with undercoverage, and let's take an example, we want a coverage ($1-\alpha = 0.9$), hence miscoverage is $\alpha=0.1$, but actually 20% of our target is falling 'outside' of the prediction interval, either above or below. Then, for 20% of the observations we will have positive scores, i.e. the 20% biggest $s_i > 0$, the rest will be negative. Equivalently: $Quantile(\mathbf{s}; 0.8) = 0$. __Hence taking the $(1-\alpha) = 0.9$ quantile (or small sample correction of it) will be a positive value, i.e. $s_{adj} > 0$, widening the prediction intervals.__
 
