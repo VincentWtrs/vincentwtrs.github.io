@@ -8,7 +8,7 @@ I am a data scientist / AI expert based in Belgium. I design and build data-driv
 
 My work spans all stages of the data science project lifecycle, from scoping and analysis to implementation, delivery, and maintenance. A selection of projects includes:
 
-* AI-driven investment fund ([Enhanced Intelligence Fund](https://www.kbc.be/private-banking/en/portfolio-management/investment-instruments/funds/artificial-intelligence-fund.html)): the first Belgian AI-driven investment fund. For historical performance data, see [Morningstar](https://global.morningstar.com/en-eu/investments/funds/0P00000JKW/quote).
+* AI-driven investment fund ([Enhanced Intelligence Fund](https://newsroom.kbc.com/a-first-for-belgian-kbccbc-clients-kbc-asset-management-introduces-a-new-way-of-fund-management)): the first Belgian AI-driven investment fund. For historical performance data, see [Morningstar](https://global.morningstar.com/en-eu/investments/funds/0P00000JKW/quote).
 * Generative AI-driven document handling system for Know Your Customer (KYC) processes, automatically extracting and converting information from legal documents.
 * Use of Large Language Models (LLMs) and other generative AI techniques to automate and assess claims handling for non-life insurance.
 * Customer Relationship Management (CRM) applications, e.g. lead generation (propensity-to-buy) prediction using machine learning classifiers.
