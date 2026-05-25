@@ -161,6 +161,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import random
+import sklearn
 
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.model_selection import train_test_split
@@ -169,6 +170,15 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.datasets import fetch_openml
 from sklearn.metrics import make_scorer
 from sklearn.metrics import mean_pinball_loss
+
+# For reproduceability, showing which sklearn version is used. Use a modern version ideally >= 1.2
+print(f"Scikit-learn version used: {sklearn.__version__}")
+
+# Setting seed
+seed = 42
+
+# Setting plotting style
+plt.style.use("ggplot")  # Cleaner plotting
 
 # For reproduceability, showing which sklearn version is used. Use a modern version ideally >= 1.2
 import sklearn; print(f"Scikit-learn version used: {sklearn.__version__}")
@@ -322,8 +332,8 @@ pinball_losses = [make_scorer(mean_pinball_loss, alpha=tau, greater_is_better=Fa
 pinball_losses = dict(zip(taus, pinball_losses))  # Dictionary with the alphas as keys and losses as values
 
 # Cross-validation with chosen search strategy for hyperparameter values
-models = dict.fromkeys(taus, None)  # Dictionary with keys being the tau values to save models in
-tuning_objects = dict.fromkeys(taus, None)  # Same, but to save tuned model in
+models = {}  
+tuning_objects = {}
 
 # For each requested conditional quantile level
 for tau in taus:
@@ -378,19 +388,19 @@ We take the predictions on the calibration dataset ($D_2$) and translate the the
 
 
 ```python
-def calculate_conformal_correction(preds_cal, target_cal, alpha):
+def calculate_conformal_correction(preds_cal: np.ndarray, target_cal: np.ndarray, alpha: float) -> float:
     """
     Calculates conformity scores and calculates the modified quantile to correct the raw prediction intervals
     provided to achieve correct requested coverage and mis-coverage (alpha). Ideally this is performed on a 
     separate calibration dataset (hence pred_cal, target_cal).
     
-    Parameters:
-    - preds_cal: 2 x n Numpy array with predictions
-    - target_cal: Target values in NumPy array (or Pandas Series)
-    - alpha: Float denoting miscoverage level
+    Args:
+        preds_cal (np.ndarray): 2 x n Numpy array with predictions
+        target_cal (np.ndarray): Target values in NumPy array (or Pandas Series)
+        alpha (float): Float denoting miscoverage level
     
     Returns:
-    - Conformal correction (float) to apply on lower and upper bounds.
+        float: Conformal correction to apply on lower and upper bounds.
     """
     # Calculate the 'deviations' from lower and upper predicted quantiles
     preds_lower = preds_cal[:, 0]  # First col is lower bound
@@ -404,6 +414,15 @@ def calculate_conformal_correction(preds_cal, target_cal, alpha):
     correction = np.quantile(a=conf_scores, q=alpha_compl_mod)
     
     return correction
+
+# Use function to calculate the correction factor
+conformal_correction = calculate_conformal_correction(preds_cal=preds_cal,
+                                                      target_cal=y_cal,
+                                                      alpha=0.1)
+print(f"The conformal correction calculated on the calibration data is: {conformal_correction: .2f} (USD)")
+
+# Compare the correction magnitude to average of target in calibration set to get relative idea
+print(f"The conformal correction relative to the average house price: {conformal_correction / y_cal.mean() * 100:.2f}%")
 
 # Use function to calculate the correction factor
 conformal_correction = calculate_conformal_correction(preds_cal=preds_cal,
@@ -441,22 +460,22 @@ Let's now check, on the unseen test data set, if the requested coverage is achie
 
 
 ```python
-def calculate_coverage(preds, target):
+def calculate_coverage(preds: np.ndarray, target: np.ndarray) -> float:
     """
-    Calculates if the target falls within the lower and upper bounds to calculate actual coverage.
+    Calculates fraction of times target falls within the lower and upper bounds to calculate actual coverage.
     
-    Parameters:
-    - preds: 2 x n NumPy array with predictions
-    - target: Numpy array with target
+    Args:
+        preds (np.ndarray): 2 x n NumPy array with predictions
+        target (np.ndarray): NumPy array with target
     
     Returns:
-    - Float (between 0 and 1) denoting the coverage level of the PI.
+        float: Float (between 0 and 1) denoting the coverage level of the PI.
     """
     # Count observations where target is within bounds (1 if yes, 0 if not)
     target_in_bounds_indicator = np.where((preds[:, 0] <= target) & (preds[:, 1] > target), 1, 0)
     
     # Return average (=proportion with the 0/1 from above)
-    return np.mean(target_in_bounds_indicator)
+    return float(np.mean(target_in_bounds_indicator))
 
 # Use the function defined above
 coverage_test_raw = calculate_coverage(preds=preds_test, target=y_test)
@@ -503,8 +522,13 @@ Next to the coverage, we can also check other properties of the prediction inter
 
 
 ```python
-def calculate_conformal_diagnostics(preds_cal, preds_cal_conf, target_cal, preds_test, 
-                                    preds_test_conf, target_test, return_df=False):
+def calculate_conformal_diagnostics(preds_cal: np.ndarray, 
+                                    preds_cal_conf: np.ndarray, 
+                                    target_cal: np.ndarray, 
+                                    preds_test: np.ndarray, 
+                                    preds_test_conf: np.ndarray, 
+                                    target_test: np.ndarray, 
+                                    return_df: bool = False) -> pd.DataFrame | None:
     """
     Creates an overview/diagnostics. First it calculates the conformal correction necessary using
     calculate_conformal_correction() on the calibration data (using the raw predictions and the actual target). 
@@ -514,17 +538,17 @@ def calculate_conformal_diagnostics(preds_cal, preds_cal_conf, target_cal, preds
     
     In case of return_df=True, it also returns a Pandas DataFrame with all information.
     
-    Parameters:
-    - preds_cal: 2 x n NumPy array of predictions on calibration data
-    - preds_cal_conf: 2 x n NumPy array of conformalized predictions on calibration data
-    - target_cal: NumPy array with target variable from calibration data
-    - pred_test:  2 x n NumPy array of predictions on unseen data
-    - preds_test_conf: 2 x n NumPy array of conformalized predictions on unseen data
-    - target_test: NumPy array with target variable from unseen data
-    - return_df: Boolean denoting if diagnostics info should be returnedin overview DF
+    Args:
+        preds_cal (np.ndarray): 2 x n NumPy array of predictions on calibration data
+        preds_cal_conf (np.ndarray): 2 x n NumPy array of conformalized predictions on calibration data
+        target_cal (np.ndarray): NumPy array with target variable from calibration data
+        pred_test (np.ndarray):  2 x n NumPy array of predictions on unseen data
+        preds_test_conf (np.ndarray): 2 x n NumPy array of conformalized predictions on unseen data
+        target_test (np.ndarray): NumPy array with target variable from unseen data
+        return_df (bool): Boolean denoting if diagnostics info should be returnedin overview DF
     
     Returns:
-    - None if return_df = False, else return_df: overview diagnostics Pandas DF.
+        pd.DataFrame | None: if return_df = False, else return_df: overview diagnostics Pandas DF.
     """    
     # Coverage indicators per row
     coverage_cal_raw = calculate_coverage(preds=preds_cal, target=y_cal)
@@ -729,9 +753,10 @@ The code for the class is provided below and an example on how to use it.
 
 
 ```python
+import logging
 import numpy as np
 import pandas as pd
-import logging
+import sklearn
 
 from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.model_selection import train_test_split
@@ -739,6 +764,11 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.base import clone
 from sklearn.metrics import mean_pinball_loss
 from sklearn.metrics import make_scorer
+from typing import Any
+from numpy.typing import ArrayLike
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 class ConformalizedQuantileRegressorCV:
     """
@@ -750,15 +780,22 @@ class ConformalizedQuantileRegressorCV:
     using those lower and upper quantiles that were requested, or to request other lower and upper bounds. (e.g.
     estimating quantiles (0.05 ; 0.95) but wanting valid PI of e.g. (0.10 ; 0.90), if the user requires.
     
-    Parameters:
-    - estimator: The base machine learning estimator supporting quantile regression (sklearn object!)
-    - quantiles: A list of floats, indicating the quantiles to be estimated.
-    - param_distributions: Dictionary with hyperparameters names as keys and their values.
-    - n_iter: Number of parameter settings that are sampled in the randomized search.
-    - cv: data splitting strategy, can be integer or e.g. KFold object.
-    - random_state: Seed used by the random number generator.
+    Args:
+        estimator (sklearn.base.RegressorMixin): The base machine learning estimator supporting quantile regression (sklearn object!)
+        quantiles (list[float]): List containing the quantiles to be estimated.
+        param_distributions (dict): Dictionary with hyperparameters names as keys and their values.
+        n_iter (int): Number of parameter settings that are sampled in the randomized search.
+        cv (Any): data splitting strategy, can be integer or e.g. KFold object.
+        random_state (int): Seed used by the random number generator.
     """
-    def __init__(self, estimator, quantiles, param_distributions, n_iter, cv, random_state=42):
+    def __init__(self, 
+                 estimator: sklearn.base.RegressorMixin, 
+                 quantiles: list[float],
+                 param_distributions: dict[str, Any], 
+                 n_iter: int, 
+                 cv: Any, 
+                 random_state=42):
+        
         self.estimator = estimator
         self.quantiles = quantiles
         self.param_distributions = param_distributions
@@ -768,7 +805,7 @@ class ConformalizedQuantileRegressorCV:
         
         self.conformal_correction = None
         
-    def fit(self, X, y):
+    def fit(self, X: ArrayLike, y: ArrayLike):
         """
         Loops over the different conditional quantiles to estimate and perform a randomized hyperparameter search 
         tuning procedure for the requested `param_distributions`, requested `n_iter` amount of candidate hyperparameter
@@ -778,9 +815,9 @@ class ConformalizedQuantileRegressorCV:
         
         Best estimators themselves, best parameters, cv results and scores are saved.
         
-        Parameters:
-        - X: Features array.
-        - y: Target array.
+        Args:
+            X (array-like): Features array.
+            y (array-like): Target array.
         """
         # Check if "quantile" parameter name either "quantile" or "alpha"
         if "quantile" in self.estimator.get_params():
@@ -837,14 +874,22 @@ class ConformalizedQuantileRegressorCV:
             # Note: CV objects when calling .predict() on them will predict on fitted versions trained on all X
             #  data (as long as refit=True (as is default)).
         else:
-            logging.error('Run predict only after calling models have been fitted, call the fit() method!')
+            logger.error('Run predict only after calling models have been fitted, call the fit() method!')
             
         return np.hstack(preds)
     
-    def find_closest_quantile_models(self, lower=None, upper=None):
+    def find_closest_quantile_models(self, lower: float | None = None, upper: float | None = None) -> None:
         """
         Helper method that checks if the requested prediction intervals match up with any of the estimated
         quantile models, if not it takes the closest. Puts the results in self.model_lower and self.model_upper!
+
+        Args:
+         lower (float | None): Desired lower bound for prediction interval (default: None, in which case it will take the min of estimated quantiles).
+         upper (float | None): Desired upper bound for prediction interval (default: None, in which case it will take the max of estimated quantiles).
+        
+        Returns:
+            None: This method does not return anything, but it sets self.model_lower and self.model_upper 
+            based on the closest match logic.
         """        
         # If no specific lower and upper bound is given: just take the (min, max) of requested q levels
         if lower is None:
@@ -867,7 +912,7 @@ class ConformalizedQuantileRegressorCV:
             # Find closest match
             lower_closest = min(self.quantiles, key=lambda x: abs(x - lower)) # lower closest quantile
             self.lower_mismatch = min([abs(x - lower) for x in self.quantiles])  # Save mismatch
-            logging.info(f"Mismatch ({self.lower_mismatch:.3f}) on estimated quantile and requested lower PI bound")
+            logger.info(f"Mismatch ({self.lower_mismatch:.3f}) on estimated quantile and requested lower PI bound")
             self.model_lower = [x for x in self.best_estimator_ if x.get_params()[self.q_param_name] == lower_closest][0]    
 
         ## Quantile level matcher / closest match logic - UPPER
@@ -881,23 +926,30 @@ class ConformalizedQuantileRegressorCV:
             # Find closest match
             upper_closest = min(self.quantiles, key=lambda x: abs(x - upper))
             self.upper_mismatch = min([abs(x - upper) for x in self.quantiles])  # Save mismatch
-            logging.info(f"Mismatch ({self.upper_mismatch:.3f}) on estimated quantile and requested upper PI bound")
+            logger.info(f"Mismatch ({self.upper_mismatch:.3f}) on estimated quantile and requested upper PI bound")
             self.model_upper = [x for x in self.best_estimator_ if x.get_params()[self.q_param_name] == upper_closest][0]
             
         # Check if lower < upper
         if upper_closest < lower_closest:
-            logging.warning("Mismatch on requested quantile models, tried finding closest match but lower model match has higher quantile level than higher match")
+            logger.warning("Mismatch on requested quantile models, tried finding closest match but lower model match has higher quantile level than higher match")
         
         # Saving results as attributes
         self.lower_match = lower_closest 
         self.upper_match = upper_closest
         
-    def infer_alpha_levels(self, lower, upper):
+    def infer_alpha_levels(self, lower: float, upper: float) -> None:
         """
         If symmetry is not forced, this method will check if the requested (lower, upper) bounds
         AND the requested quantile models mismatch are symmetric. If so, it will revert to the
         symmetric setup, else, it will set a self.alpha_low and self.alpha_high instead of 
         self.alpha alone. Also sets self.symmetric appropriately.
+
+        Args:
+            lower (float): Desired lower bound for prediction interval.
+            upper (float): Desired upper bound for prediction interval.
+        Returns:
+            None: This method does not return anything, but it sets self.symmetric, self.alpha, 
+                self.alpha_low and self.alpha_high based on the symmetry logic.
         """
         if (abs((1 - upper) - lower) < 1e-5) & (abs(self.lower_mismatch - self.upper_mismatch) < 2e-2):
             self.symmetric = True
@@ -905,13 +957,18 @@ class ConformalizedQuantileRegressorCV:
             self.alpha_low = None
             self.alpha_high = None
         else:
-            logging.warning(f"Using asymmetric formula, either due to request or or due to differing mismatch on underlying CQR models...")
+            logger.warning("Using asymmetric formula, either due to request or or due to differing mismatch on underlying CQR models...")
             self.symmetric = False
             self.alpha_low = lower
             self.alpha_high = 1 - upper
             self.alpha = None
         
-    def calculate_conformal_correction(self, X_cal, y_cal, lower, upper, symmetric=None):
+    def calculate_conformal_correction(self, 
+                                       X_cal: ArrayLike, 
+                                       y_cal: ArrayLike, 
+                                       lower: float,
+                                       upper: float, 
+                                       symmetric: bool | None = None) -> None:
         """
         Calculates the conformal correction. The interface is a bit special: a lower and upper bound
         are to be provided to the function. If you want a 90% symmetric PI: provide lower=0.05, upper=0.95.
@@ -921,12 +978,16 @@ class ConformalizedQuantileRegressorCV:
         A dataset to calculate the conformalization correction should be provided (X_cal, y_cal), ideally this 
         is unseen data.
         
-        Parameters:
-        - X_cal: Calibration features array.
-        - y_cal: Calibration target array.
-        - lower: Desired lower bound for prediction interval.
-        - upper: Desired upper bound for prediction interval.
-        - symmetric: Whether to enforce symmetric intervals. If None, determines symmetry based on mismatches.
+        Args:
+            X_cal (array-like): Calibration features array.
+            y_cal (array-like): Calibration target array.
+            lower (float): Desired lower bound for prediction interval.
+            upper (float): Desired upper bound for prediction interval.
+            symmetric (bool | None): Whether to enforce symmetric intervals. 
+                If None, determines symmetry based on mismatches.
+        Returns:
+            None: This method does not return anything, but it sets 
+                self.conformal_corr based on the calculated conformal correction.
         
         """
         # Setting this attribute
@@ -965,8 +1026,15 @@ class ConformalizedQuantileRegressorCV:
             self.conformal_corr = np.column_stack([np.quantile(a=lower_conf_scores, q=adj_alpha_low_compl),
                                                    np.quantile(a=upper_conf_scores, q=adj_alpha_high_compl)])
             
-    def predict_conformal(self, X):        
-        """Takes the calculated conformal correction (shift) factor and applies them to the raw predictions"""
+    def predict_conformal(self, X: ArrayLike) -> np.ndarray:        
+        """
+        Takes the calculated conformal correction (shift) factor and applies them to the raw predictions
+        
+        Args:
+            X (array-like): Features array in NumPy style for which conformalized predictions are requested.
+        Returns:
+            np.ndarray: A 2D array of shape (n_samples, 2) with conformalized lower and upper predictions.
+        """
                 
         if self.conformal_corr is None:
             logger.error("Conformal correction not calculated yet, apply the calculate_conformal_correction method")
@@ -1073,7 +1141,7 @@ Indeed, the calibration on the unseen dataset now has improved from 79% to 88%, 
 
 # Next up
 
-This gives an idea about the basics of conformalized quantile regression. Extensions surely exist and I have some more advanced implementations that I might share in a next post. Stay tuned!
+This gives an idea about the basics of conformalized quantile regression. Extensions of this concept can also be made to classification models or to other situations such as time series modeling. For the latest state-of-the-art on conformal learning, check the Valemans GitHub page (see sources below). 
 
 # Sources
 * Romano, Patterson & Candes (2019): Conformalized Quantile Regression [(https://arxiv.org/abs/1905.03222)](https://arxiv.org/abs/1905.03222)
