@@ -1147,3 +1147,9 @@ This gives an idea about the basics of conformalized quantile regression. Extens
 * Romano, Patterson & Candes (2019): Conformalized Quantile Regression [(https://arxiv.org/abs/1905.03222)](https://arxiv.org/abs/1905.03222)
 * Barber et al. (2022): Conformal prediction beyond exchangeability [(https://www.stat.berkeley.edu/~ryantibs/papers/nexcp.pdf)](https://www.stat.berkeley.edu/~ryantibs/papers/nexcp.pdf)
 * Valemans _Awesome Conformal Prediction_ GitHub page [(https://github.com/valeman/awesome-conformal-prediction)](https://github.com/valeman/awesome-conformal-prediction)
+
+# Change log
+- 25/05/2026: Added type hints and converted to Google-style docstrings
+- 24/05/2026: Fixed issue in rendering of LaTeX hats being offset (using widehat instead of hat)
+- 10/03/2024: Added additional information on exchangeability condition and added sources
+
