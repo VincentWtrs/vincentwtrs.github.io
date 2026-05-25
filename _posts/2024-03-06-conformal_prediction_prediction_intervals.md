@@ -858,16 +858,16 @@ class ConformalizedQuantileRegressorCV:
         
         return self
                   
-    def predict(self, X):
+    def predict(self, X: ArrayLike) -> np.ndarray:
         """
         Returns (2 x N) Numpy array of predictions for the optimal model found by means of
         cross-validation.
         
-        Parameters:
-        - X: Features array in NumPy style
+        Args:
+            X (ArrayLike): Features array in NumPy style
         
         Returns:
-        - A 2D array of shape (n_samples, 2) with lower and upper predictions.
+            np.ndarray: 2D array of shape (n_samples, 2) with lower and upper predictions.
         """
         if self.estimators_ is not None:        
             preds = [est.predict(X=X)[:, np.newaxis] for est in self.best_estimator_]
